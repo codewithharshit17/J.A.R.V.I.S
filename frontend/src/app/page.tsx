@@ -1,26 +1,35 @@
-import Navbar from "../components/layout/Navbar";
+"use client";
+
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 export default function Home() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    api.get("/")
+      .then((response) => {
+        setMessage(response.data.message);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-black text-white flex items-center justify-center">
 
-      <Navbar />
+      <div className="text-center">
 
-      <section className="flex items-center justify-center h-[80vh]">
+        <h1 className="text-5xl font-bold text-cyan-400">
+          J.A.R.V.I.S
+        </h1>
 
-        <div className="text-center">
+        <p className="mt-6 text-xl text-gray-300">
+          {message}
+        </p>
 
-          <h1 className="text-7xl font-bold text-cyan-400">
-            J.A.R.V.I.S
-          </h1>
-
-          <p className="mt-4 text-gray-400 text-lg">
-            Artificial Intelligence System
-          </p>
-
-        </div>
-
-      </section>
+      </div>
 
     </main>
   );
