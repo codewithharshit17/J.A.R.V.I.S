@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.v1.routes.system import router as system_router
+from app.api.routes.health import router as health_router
 
 app = FastAPI(
     title="J.A.R.V.I.S Backend",
@@ -14,8 +16,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    return {
-        "message": "J.A.R.V.I.S backend running"
-    }
+app.include_router(health_router)
+app.include_router(system_router)
