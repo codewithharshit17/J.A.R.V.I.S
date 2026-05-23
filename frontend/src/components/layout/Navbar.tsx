@@ -8,7 +8,7 @@ export default function Navbar() {
 
       <div className="flex items-center gap-3">
 
-        <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
+        <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#00e5ff]" />
 
         <p className="text-sm text-gray-400">
           SYSTEM ONLINE

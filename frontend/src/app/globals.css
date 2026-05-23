@@ -1,15 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* ============================================================
+   J.A.R.V.I.S. CINEMATIC DESIGN SYSTEM - PHASE 6 POLISH
+   ============================================================ */
 
 :root {
   --background: #050816;
   --foreground: #ffffff;
 
-  --primary: #00f0ff;
-  --secondary: #7c3aed;
+  /* State Colors */
+  --color-booting: #00b2ff;
+  --color-idle: #00e5ff;
+  --color-listening: #b6f7ff;
+  --color-processing: #00e5ff;
+  --color-speaking: #00b2ff;
+  --color-analyzing: #00b2ff;
+  --color-warning: #b6f7ff;
+  --color-executing: #00e5ff;
+  --color-disconnected: #002244;
+  --color-error: #b6f7ff;
 
-  --card: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.1);
+  /* Core Palette */
+  --cyan-primary: #00e5ff;
+  --cyan-dim: rgba(0, 229, 255, 0.15);
+  --blue-deep: #07111f;
+  --navy-void: #050816;
+  --primary-glow: #00e5ff;
+  --secondary-glow: #00b2ff;
+  --holo-white: #b6f7ff;
+
+  /* Typography */
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-rajdhani: 'Rajdhani', sans-serif;
+
+  /* Cursor glow defaults (overridden by useMouseGlow) */
+  --glow-x: 50vw;
+  --glow-y: 50vh;
+  --glow-nx: 0.5;
+  --glow-ny: 0.5;
+  --glow-radial: radial-gradient(600px circle at 50vw 50vh, rgba(0, 229, 255, 0.06), transparent 70%);
 }
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
 
 * {
   margin: 0;
@@ -17,15 +53,989 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
 body {
-  background:
-    radial-gradient(circle at top, #0f172a, #020617);
-
-  color: white;
-
+  background-color: var(--background);
+  color: var(--foreground);
   min-height: 100vh;
-
   overflow-x: hidden;
+  font-family: var(--font-rajdhani);
+  letter-spacing: 0.05em;
+  position: relative;
+  cursor: crosshair;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  font-family: Arial, Helvetica, sans-serif;
+::selection {
+  background: rgba(0, 229, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.font-orbitron {
+  font-family: var(--font-orbitron);
+}
+
+.font-share-mono {
+  font-family: var(--font-mono);
+}
+
+.font-rajdhani {
+  font-family: var(--font-rajdhani);
+}
+
+/* ============================================================
+   GLOWING TEXT SYSTEMS
+   ============================================================ */
+
+.glow-text-cyan {
+  text-shadow:
+    0 0 6px rgba(0, 229, 255, 0.7),
+    0 0 16px rgba(0, 229, 255, 0.35),
+    0 0 40px rgba(0, 229, 255, 0.12);
+}
+
+.glow-text-error {
+  text-shadow:
+    0 0 6px rgba(182, 247, 255, 0.7),
+    0 0 16px rgba(0, 178, 255, 0.35),
+    0 0 40px rgba(0, 229, 255, 0.12);
+}
+
+.glow-text-white {
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.6),
+    0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Text flicker - subtle brightness oscillation */
+.text-flicker {
+  animation: text-flicker-anim 4s ease-in-out infinite;
+}
+
+@keyframes text-flicker-anim {
+  0%, 100% { opacity: 0.88; }
+  25% { opacity: 0.92; }
+  50% { opacity: 1; }
+  75% { opacity: 0.85; }
+}
+
+/* ============================================================
+   HOLOGRAPHIC GRID BACKGROUND
+   ============================================================ */
+
+.hologram-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  pointer-events: none;
+  z-index: 1;
+  animation: grid-drift 30s linear infinite;
+}
+
+.hologram-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(5, 8, 22, 0.85) 75%);
+}
+
+@keyframes grid-drift {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 40px 40px; }
+}
+
+/* ============================================================
+   FUTURISTIC SCANLINE EFFECT
+   ============================================================ */
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 229, 255, 0.018) 2px,
+      rgba(0, 229, 255, 0.018) 4px
+    );
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.55;
+  animation: scanline-shift 0.08s steps(2) infinite;
+  will-change: transform;
+}
+
+@keyframes scanline-shift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+/* ============================================================
+   VIGNETTE OVERLAY
+   ============================================================ */
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  box-shadow:
+    inset 0 0 120px rgba(0, 0, 0, 0.6),
+    inset 0 0 300px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ============================================================
+   CURSOR-REACTIVE LIGHTING LAYER
+   ============================================================ */
+
+.cursor-glow-layer {
+  position: fixed;
+  inset: 0;
+  background: var(--glow-radial);
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: screen;
+  will-change: background;
+  transition: background 0.05s linear;
+}
+
+/* ============================================================
+   HORIZONTAL SCANNING LASER BAR
+   ============================================================ */
+
+.scanning-laser {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, rgba(0, 229, 255, 0.08) 20%, rgba(0, 229, 255, 0.5) 50%, rgba(0, 229, 255, 0.08) 80%, transparent 95%);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3), 0 0 40px rgba(0, 229, 255, 0.1);
+  animation: scan-laser 10s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+  pointer-events: none;
+  z-index: 5;
+  will-change: transform, opacity;
+}
+
+@keyframes scan-laser {
+  0% {
+    transform: translateY(-10vh);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   GLASSMORPHISM PANELS
+   ============================================================ */
+
+.glass-panel {
+  background: rgba(2, 8, 20, 0.55);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.04) 0%,
+    transparent 50%,
+    rgba(0, 229, 255, 0.02) 100%
+  );
+  pointer-events: none;
+}
+
+/* Animated border shimmer */
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -50%;
+  width: 200%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.4), transparent);
+  animation: border-shimmer 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes border-shimmer {
+  0%, 100% { transform: translateX(-30%); opacity: 0; }
+  50% { transform: translateX(30%); opacity: 1; }
+}
+
+/* ============================================================
+   ATMOSPHERIC FOG LAYER
+   ============================================================ */
+
+.atmospheric-fog {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(0, 100, 180, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(6, 20, 50, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  animation: fog-drift 25s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+@keyframes fog-drift {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+/* ============================================================
+   ENERGY PULSE SYSTEM
+   ============================================================ */
+
+.energy-pulse {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  margin: -300px 0 0 -300px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.06);
+  pointer-events: none;
+  z-index: 1;
+  animation: energy-pulse-expand 8s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.energy-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.04);
+  animation: energy-pulse-expand 8s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  animation-delay: 2s;
+}
+
+@keyframes energy-pulse-expand {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   HOLOGRAPHIC NOISE / FILM GRAIN
+   ============================================================ */
+
+.holo-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px;
+  animation: noise-shift 0.15s steps(3) infinite;
+  will-change: transform;
+  contain: strict;
+}
+
+@keyframes noise-shift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-5px, -3px); }
+  66% { transform: translate(3px, 5px); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+/* ============================================================
+   CHROMATIC ABERRATION EDGE
+   ============================================================ */
+
+.chromatic-edge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  box-shadow:
+    inset 3px 0 8px rgba(182, 247, 255, 0.012),
+    inset -3px 0 8px rgba(0, 178, 255, 0.018);
+  will-change: box-shadow;
+  animation: chromatic-shift 12s ease-in-out infinite alternate;
+}
+
+@keyframes chromatic-shift {
+  0% {
+    box-shadow:
+      inset 2px 0 6px rgba(182, 247, 255, 0.01),
+      inset -2px 0 6px rgba(0, 178, 255, 0.01);
+  }
+  50% {
+    box-shadow:
+      inset 4px 0 12px rgba(182, 247, 255, 0.022),
+      inset -4px 0 12px rgba(0, 178, 255, 0.025);
+  }
+  100% {
+    box-shadow:
+      inset 2px 0 8px rgba(182, 247, 255, 0.014),
+      inset -2px 0 8px rgba(0, 178, 255, 0.016);
+  }
+}
+
+/* ============================================================
+   DATA STREAM RAIN OVERLAY
+   ============================================================ */
+
+.data-stream {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent,
+      transparent 120px,
+      rgba(0, 229, 255, 0.008) 120px,
+      rgba(0, 229, 255, 0.008) 121px
+    );
+  background-size: 100% 121px;
+  animation: data-rain 4s linear infinite;
+  will-change: transform;
+  contain: layout paint;
+}
+
+@keyframes data-rain {
+  0% { transform: translateY(-121px); }
+  100% { transform: translateY(0); }
+}
+
+/* ============================================================
+   DEPTH BLUR EDGE SYSTEM
+   ============================================================ */
+
+.depth-blur-edge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 12;
+  mask-image: radial-gradient(ellipse at center, transparent 55%, black 100%);
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 55%, black 100%);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+}
+
+/* ============================================================
+   BREATHING / AMBIENT ANIMATIONS
+   ============================================================ */
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes holo-flicker {
+  0%, 100% { opacity: 0.92; }
+  10% { opacity: 0.88; }
+  30% { opacity: 0.95; }
+  50% { opacity: 0.82; }
+  70% { opacity: 0.98; }
+  90% { opacity: 0.86; }
+}
+
+@keyframes float-drift {
+  0%, 100% { transform: translateY(0) translateZ(0); }
+  33% { transform: translateY(-4px) translateZ(2px); }
+  66% { transform: translateY(3px) translateZ(-1px); }
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(2, 4, 10, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.25);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.5);
+}
+
+/* ============================================================
+   GLITCH ANIMATION
+   ============================================================ */
+
+@keyframes glitch-anim {
+  0% { clip-path: inset(40% 0 61% 0); }
+  20% { clip-path: inset(92% 0 1% 0); }
+  40% { clip-path: inset(5% 0 88% 0); }
+  60% { clip-path: inset(25% 0 58% 0); }
+  80% { clip-path: inset(54% 0 7% 0); }
+  100% { clip-path: inset(80% 0 5% 0); }
+}
+
+.glitch-effect {
+  position: relative;
+}
+
+.glitch-effect::before,
+.glitch-effect::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+}
+
+.glitch-effect::before {
+  left: 2px;
+  text-shadow: -1px 0 #b6f7ff;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-effect::after {
+  left: -2px;
+  text-shadow: -1px 0 #00e5ff, 0 1px #00b2ff;
+  clip: rect(85px, 450px, 140px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+/* ======================================================
+   PHASE 1 – SUBPHASE 5: INTERACTION CHAMBER STYLES
+   ====================================================== */
+
+/* Holographic input focus ring */
+.holographic-input-focus {
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 255, 0.4),
+    0 0 20px rgba(0, 229, 255, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Projection glow text */
+.projection-text {
+  text-shadow:
+    0 0 10px rgba(0, 229, 255, 0.8),
+    0 0 30px rgba(0, 178, 255, 0.4),
+    0 0 60px rgba(0, 229, 255, 0.2);
+  letter-spacing: 0.08em;
+}
+
+/* Neural stream particle trace */
+.neural-trace {
+  filter: blur(0.5px) brightness(1.4);
+}
+
+/* Holographic shimmer animation */
+@keyframes holo-shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.animate-holo-shimmer {
+  animation: holo-shimmer 2.5s ease-in-out infinite;
+}
+
+/* Holographic flicker */
+@keyframes holo-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96% { opacity: 0.85; }
+  97% { opacity: 1; }
+  98% { opacity: 0.9; }
+  99% { opacity: 1; }
+}
+
+.animate-holo-flicker {
+  animation: holo-flicker 6s linear infinite;
+}
+
+/* ============================================================
+   PHASE 1 – ENHANCED AMBIENT ANIMATIONS
+   ============================================================ */
+
+/* Unified breathing glow system */
+@keyframes breathing-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(0, 229, 255, 0.3),
+      inset 0 0 20px rgba(0, 229, 255, 0.1),
+      0 0 6px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 50px rgba(0, 229, 255, 0.6),
+      inset 0 0 30px rgba(0, 229, 255, 0.2),
+      0 0 12px rgba(0, 229, 255, 0.4);
+  }
+}
+
+.animate-breathing-glow {
+  animation: breathing-glow 4s ease-in-out infinite;
+}
+
+/* Holographic panel breathing */
+@keyframes panel-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(0, 229, 255, 0.25),
+      inset 0 0 15px rgba(0, 229, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(0, 229, 255, 0.45),
+      inset 0 0 25px rgba(0, 229, 255, 0.2);
+  }
+}
+
+.animate-panel-breathe {
+  animation: panel-breathe 4.5s ease-in-out infinite;
+}
+
+/* Text glow breathing */
+@keyframes text-glow-breathe {
+  0%, 100% {
+    text-shadow:
+      0 0 6px rgba(0, 229, 255, 0.4),
+      0 0 16px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(0, 229, 255, 0.7),
+      0 0 30px rgba(0, 229, 255, 0.4);
+  }
+}
+
+.animate-text-glow-breathe {
+  animation: text-glow-breathe 4s ease-in-out infinite;
+}
+
+/* Soft scale breathing (UI elements) */
+@keyframes scale-breathe {
+  0%, 100% { transform: scale(0.98); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-scale-breathe {
+  animation: scale-breathe 4s ease-in-out infinite;
+}
+
+/* Gentle float animation */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-gentle-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+/* Bloom pulse effect */
+@keyframes bloom-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 40px rgba(0, 229, 255, 0.6));
+  }
+}
+
+.animate-bloom-pulse {
+  animation: bloom-pulse 2s ease-in-out infinite;
+}
+
+/* Neon flicker for text */
+@keyframes neon-flicker {
+  0%, 100% { opacity: 0.85; }
+  10% { opacity: 0.9; }
+  20% { opacity: 0.95; }
+  30% { opacity: 1; }
+  40% { opacity: 0.92; }
+  50% { opacity: 1; }
+  60% { opacity: 0.88; }
+  70% { opacity: 0.95; }
+  80% { opacity: 0.9; }
+  90% { opacity: 1; }
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 0.15s infinite;
+}
+
+/* Data stream effect */
+@keyframes data-stream {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    background-position: 0% 100%;
+    opacity: 0.5;
+  }
+}
+
+.animate-data-stream {
+  animation: data-stream 4s linear infinite;
+}
+
+/* Orbiting animation (clockwise) */
+@keyframes orbit-clockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-orbit-slow {
+  animation: orbit-clockwise 20s linear infinite;
+}
+
+.animate-orbit-medium {
+  animation: orbit-clockwise 15s linear infinite;
+}
+
+.animate-orbit-fast {
+  animation: orbit-clockwise 8s linear infinite;
+}
+
+/* Reverse orbit (counter-clockwise) */
+@keyframes orbit-counter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.animate-orbit-counter {
+  animation: orbit-counter 25s linear infinite;
+}
+
+/* Drift animation (slow horizontal wave) */
+@keyframes drift-wave {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  25% { transform: translateX(15px) translateY(-8px); }
+  50% { transform: translateX(0px) translateY(0px); }
+  75% { transform: translateX(-15px) translateY(8px); }
+}
+
+.animate-drift {
+  animation: drift-wave 30s ease-in-out infinite;
+}
+
+/* Scanning line sweep (top to bottom) */
+@keyframes scanline-sweep {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.animate-scanline {
+  animation: scanline-sweep 8s linear infinite;
+}
+
+/* Holographic shimmer (slight hue shift) */
+@keyframes holo-shimmer-enhanced {
+  0%, 100% {
+    opacity: 0.7;
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.1) hue-rotate(5deg);
+  }
+}
+
+.animate-holo-shimmer-enhanced {
+  animation: holo-shimmer-enhanced 3s ease-in-out infinite;
+}
+
+/* Pulse state change feedback */
+@keyframes state-pulse {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.05); }
+  50% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.animate-state-pulse {
+  animation: state-pulse 0.8s ease-out;
+}
+
+/* ============================================================
+   DEPTH & PERSPECTIVE UTILITIES
+   ============================================================ */
+
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+
+/* ============================================================
+   RESPONSIVE CINEMATIC ADJUSTMENTS
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Reduce animation complexity on mobile */
+  .animate-breathing-glow,
+  .animate-panel-breathe,
+  .animate-gentle-float {
+    animation-duration: 5s;
+  }
+
+  /* Scale down scanning effects on mobile */
+  .scanlines {
+    opacity: 0.3;
+  }
+
+  /* Reduce particle effects on mobile */
+  .cursor-glow-layer {
+    opacity: 0.5;
+  }
+}
+
+/* Voice pulse ring */
+@keyframes voice-pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.animate-voice-pulse {
+  animation: voice-pulse-ring 1.4s ease-out infinite;
+}
+
+/* Response text materialization */
+@keyframes materialize {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.animate-materialize {
+  animation: materialize 0.3s ease-out forwards;
+}
+
+/* Scan sweep for input */
+@keyframes input-scan {
+  0% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(100%) scaleX(0.5); opacity: 0; }
+}
+
+.animate-input-scan {
+  animation: input-scan 3s ease-in-out infinite;
+}
+
+/* Processing bar animation */
+@keyframes process-bar {
+  0% { transform: scaleX(0); opacity: 0; }
+  50% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(0); opacity: 0; }
+}
+
+.animate-process-bar {
+  animation: process-bar 1.2s ease-in-out infinite;
+}
+
+/* Ambient breathing */
+@keyframes ambient-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-ambient-breathe {
+  animation: ambient-breathe 4s ease-in-out infinite;
+}
+
+/* Holographic text glow pulse */
+@keyframes text-glow-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 8px rgba(0, 229, 255, 0.4),
+      0 0 20px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 16px rgba(0, 229, 255, 0.8),
+      0 0 40px rgba(0, 178, 255, 0.4),
+      0 0 80px rgba(0, 229, 255, 0.15);
+  }
+}
+
+.animate-text-glow {
+  animation: text-glow-pulse 3s ease-in-out infinite;
+}
+
+/* Glass panel backdrop */
+.glass-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(5, 8, 22, 0.75) 0%,
+    rgba(7, 17, 31, 0.85) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Holographic border gradient */
+.holo-border {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.holo-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 229, 255, 0.3),
+    rgba(0, 178, 255, 0.1),
+    rgba(182, 247, 255, 0.22)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ============================================================
+   TAILWIND ANIMATION EXTENSIONS
+   ============================================================ */
+
+/* Slow spin for HUD rings */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse-slow {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Scan sweep */
+@keyframes scan-sweep-anim {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ============================================================
+   GPU PERFORMANCE COMPOSITING HINTS
+   ============================================================ */
+
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout paint;
+  backface-visibility: hidden;
+}
+
+/* ============================================================
+   RESPONSIVE MOTION SCALING
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile: reduce particle counts & blur for performance */
+@media (max-width: 768px) {
+  body {
+    cursor: default;
+    letter-spacing: 0.03em;
+  }
+
+  .jarvis-floating-panel {
+    display: none;
+  }
+
+  .hologram-grid {
+    background-size: 28px 28px;
+    opacity: 0.8;
+  }
+
+  .energy-pulse {
+    width: 360px;
+    height: 360px;
+    margin: -180px 0 0 -180px;
+  }
+
+  .depth-blur-edge {
+    display: none;
+  }
+  
+  .scanlines {
+    opacity: 0.3;
+  }
+  
+  .holo-noise {
+    display: none;
+  }
+  
+  .chromatic-edge {
+    display: none;
+  }
 }

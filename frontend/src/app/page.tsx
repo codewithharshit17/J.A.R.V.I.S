@@ -1,36 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api from "../services/api";
+import CinematicScrollEngine from "../components/CinematicScrollEngine";
+import { useMouseGlow } from "../hooks/useMouseGlow";
 
 export default function Home() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    api.get("/")
-      .then((response) => {
-        setMessage(response.data.message);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+  // Activate cursor-reactive CSS custom properties globally
+  useMouseGlow();
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center">
+    <main className="relative w-full h-full min-h-screen bg-[#050816] overflow-hidden">
+      {/* SEO Compliance: Single h1 heading per page */}
+      <h1 className="sr-only">J.A.R.V.I.S. Neural Operating Environment - AI Consciousness Interface</h1>
 
-      <div className="text-center">
-
-        <h1 className="text-5xl font-bold text-cyan-400">
-          J.A.R.V.I.S
-        </h1>
-
-        <p className="mt-6 text-xl text-gray-300">
-          {message}
-        </p>
-
-      </div>
-
+      {/* Fullscreen cinematic holographic environment */}
+      <CinematicScrollEngine />
     </main>
   );
 }
