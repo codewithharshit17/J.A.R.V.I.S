@@ -1,6 +1,6 @@
 "use client";
 
-import { GLASS, GLOW, COLORS } from "@/lib/designConstants";
+import { GLASS, GLOW } from "@/lib/designConstants";
 
 /**
  * JARVIS Glassmorphism Effect System
@@ -30,14 +30,19 @@ export function getGlassmorphismStyle(options: GlassmorphismOptions = {}) {
 
   const backdropFilter = GLASS.backdrop[blur];
   const baseOpacity = GLASS.opacity[glowIntensity === "heavy" ? "heavy" : glowIntensity === "light" ? "light" : "medium"];
-  const glowEffect = GLOW[color as keyof typeof GLOW][glowIntensity as keyof (typeof GLOW)["cyan"]];
-  const insetGlow = inset ? GLOW.inset[glowIntensity as keyof (typeof GLOW)["inset"]] : "";
+  const sizeMap: Record<string, string> = { light: "sm", medium: "md", heavy: "lg" };
+  const size = sizeMap[glowIntensity] || "md";
+  const colorKey = color as "cyan" | "blue" | "light";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const glowEffect = (GLOW[colorKey] as any)[size];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const insetGlow = inset ? (GLOW.inset as any)[size] : "";
 
   return {
     backdropFilter,
     backgroundColor: `rgba(7, 17, 31, ${baseOpacity})`,
     boxShadow: neon ? `${glowEffect}${insetGlow ? ", " + insetGlow : ""}` : "none",
-    border: neon ? `1px solid rgba(0, 229, 255, 0.2)` : "1px solid rgba(0, 229, 255, 0.1)`,
+    border: neon ? "1px solid rgba(0, 229, 255, 0.2)" : "1px solid rgba(0, 229, 255, 0.1)",
   };
 }
 

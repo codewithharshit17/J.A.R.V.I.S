@@ -43,6 +43,7 @@ const TELEMETRY_LOGS: LogEntry[] = [
 
 export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayProps) {
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
+  const terminalContainerRef = useRef<HTMLDivElement | null>(null);
   const [currentLogs, setCurrentLogs] = useState<LogEntry[]>([]);
   const [depth, setDepth] = useState(0);
   const [syncPercent, setSyncPercent] = useState(0);
@@ -63,9 +64,11 @@ export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayPr
     return () => unsubscribe();
   }, [scrollYProgress]);
 
-  // Autoscroll terminal
+  // Autoscroll terminal container internally without affecting window scroll
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (terminalContainerRef.current) {
+      terminalContainerRef.current.scrollTop = terminalContainerRef.current.scrollHeight;
+    }
   }, [currentLogs]);
 
   // Determine current system phase label
@@ -183,7 +186,10 @@ export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayPr
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar scroll-smooth">
+          <div 
+            ref={terminalContainerRef}
+            className="flex-1 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar scroll-smooth"
+          >
             {currentLogs.length === 0 ? (
               <p className="text-gray-500 italic">Initiate scroll sequence to sync diagnostics...</p>
             ) : (

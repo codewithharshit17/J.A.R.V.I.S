@@ -151,9 +151,6 @@ export default function CinematicScrollEngine() {
   useEffect(() => {
     if (bootState !== "ready" || isCoreEntered) {
       document.body.style.overflow = "hidden";
-      if (bootState !== "ready") {
-        window.scrollTo(0, 0);
-      }
     } else {
       document.body.style.overflow = "auto";
     }
@@ -161,6 +158,11 @@ export default function CinematicScrollEngine() {
       document.body.style.overflow = "auto";
     };
   }, [bootState, isCoreEntered]);
+
+  // Force scroll to top ONLY once on mount to ensure cinematic starts at the beginning
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   // Scroll back to top handler for Scene 5 reset
   const handleReset = () => {
