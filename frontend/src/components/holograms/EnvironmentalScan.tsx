@@ -26,7 +26,7 @@ export default function EnvironmentalScan() {
           x: 20 + Math.random() * 60,
           y: 20 + Math.random() * 60,
           r: 2 + Math.random() * 3,
-          id: `T-${Math.floor(100 + Math.random() * 900)}`,
+          id: `T-${i}-${Math.floor(100 + Math.random() * 900)}`,
         });
       }
       setRadarTargets(targets);
@@ -58,7 +58,7 @@ export default function EnvironmentalScan() {
           {/* Targets inside radar (framer-motion nodes) */}
           <svg className="absolute w-28 h-28" viewBox="0 0 100 100">
             {radarTargets.map((target, idx) => (
-              <g key={target.id}>
+              <g key={`${target.id}-${idx}`}>
                 {/* Target Dot */}
                 <motion.circle 
                   cx={target.x} 
