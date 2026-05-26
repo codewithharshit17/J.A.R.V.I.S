@@ -7,44 +7,42 @@ interface AICoreOrbProps {
 }
 
 export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
-  // Scene 1: 0.0 -> 0.2 (faint, booting)
-  // Scene 2: 0.2 -> 0.4 (converging, forming)
-  // Scene 3: 0.4 -> 0.6 (fully active, expanding HUD)
-  // Scene 4: 0.6 -> 0.8 (zooming through the core)
-  // Scene 5: 0.8 -> 1.0 (stabilized and awakened)
+  // Scene stage map: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
 
   // Map scroll progress to scale of the orb
+  // S1: 0.4 (faint/tiny), S2: 0.8 (converging), S3: 1.0 (full), S4: 5.5 (zoom-through spike), S5: 0.9 (settled)
   const scale = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.58, 0.72, 0.85, 1],
-    [0.4, 0.8, 1, 1.2, 5.5, 0.9, 0.9] // Scale spikes to 5.5 in Scene 4 zoom-through, then returns to 0.9
+    [0,   0.20, 0.40, 0.60, 0.72, 0.86, 1  ],
+    [0.4, 0.8,  1.0,  1.2,  5.5,  0.90, 0.90]
   );
 
   // Map scroll progress to opacity of the core
+  // Fades in through S1, fully visible in S2+S3, vanishes during zoom-through in S4, reactivates in S5
   const opacity = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.3, 0.58, 0.72, 0.8, 0.85, 1],
-    [0.08, 0.2, 0.85, 0.9, 0.0, 0.0, 0.95, 0.95] // Fades out during zoom-through, then reactivates in Scene 5
+    [0,    0.15, 0.30, 0.60, 0.72, 0.80, 0.86, 1   ],
+    [0.08, 0.2,  0.85, 0.9,  0.0,  0.0,  0.95, 0.95]
   );
 
-  // Inner core glow intensity
+  // Inner core glow intensity — brightens as system powers up
   const glowRadius = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 0.85, 1],
-    [5, 15, 25, 30, 20, 25]
+    [0,   0.20, 0.40, 0.60, 0.86, 1  ],
+    [5,   15,   26,   32,   22,   26]
   );
 
-  // Ring outer expansion
+  // Ring outer expansion — rings grow as HUD expands in S3
   const ringScale1 = useTransform(
     scrollYProgress,
-    [0, 0.35, 0.55, 0.85, 1],
-    [0.6, 0.85, 1.1, 1.0, 1.0]
+    [0,   0.35, 0.55, 0.86, 1  ],
+    [0.6, 0.85, 1.12, 1.0,  1.0]
   );
 
   const ringScale2 = useTransform(
     scrollYProgress,
-    [0, 0.35, 0.55, 0.85, 1],
-    [0.4, 0.7, 1.25, 1.0, 1.0]
+    [0,   0.35, 0.55, 0.86, 1  ],
+    [0.4, 0.7,  1.28, 1.0,  1.0]
   );
 
   const shadowFilter = useMotionTemplate`drop-shadow(0 0 ${glowRadius}px rgba(0, 229, 255, 0.85))`;

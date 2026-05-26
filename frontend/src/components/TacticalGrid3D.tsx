@@ -25,38 +25,35 @@ export default function TacticalGrid3D({ scrollYProgress }: TacticalGrid3DProps)
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Map scroll progress to 3D grid transformations
-  // Scene 1: starts far and tilted back
-  // Scene 2/3: approaches, stabilises, glows
-  // Scene 4: extreme zoom/tilt, flying through the grid
-  // Scene 5: settles as a premium floor anchor
+  // Scene stage map: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
+  // Grid starts far and steeply angled, approaches as scenes progress, warps in S4, settles in S5.
 
-  // Grid tilt rotation on X-axis (pitch)
+  // Grid pitch (X-axis tilt): starts very steep, levels slightly as the 3D floor becomes apparent
   const rotateX = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 0.75, 0.85, 1],
-    [75, 70, 65, 80, 88, 60, 60]
+    [0,   0.20, 0.40, 0.60, 0.76, 0.86, 1  ],
+    [76,  70,   64,   80,   88,   60,   60]
   );
 
-  // Grid zoom on Z-axis
+  // Grid depth on Z-axis: pulls toward viewer then slams forward in S4
   const translateZ = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 0.75, 0.85, 1],
-    [-200, -100, 0, 150, 400, -50, -50]
+    [0,   0.20, 0.40, 0.60, 0.76, 0.86, 1  ],
+    [-200,-100,  0,   160,  420, -50,  -50]
   );
 
-  // Overall grid opacity
+  // Overall grid opacity: faint at start, fades out during zoom-through
   const opacity = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.4, 0.6, 0.75, 0.85, 1],
-    [0.15, 0.35, 0.4, 0.15, 0.05, 0.3, 0.3]
+    [0,   0.15, 0.40, 0.60, 0.76, 0.86, 1  ],
+    [0.15, 0.35, 0.42, 0.18, 0.04, 0.32, 0.32]
   );
 
-  // Scale expansion
+  // Scale expansion: grows as camera approaches in S3
   const scale = useTransform(
     scrollYProgress,
-    [0, 0.4, 0.6, 0.75, 0.85, 1],
-    [0.85, 1, 1.2, 1.8, 1, 1]
+    [0,   0.40, 0.60, 0.76, 0.86, 1  ],
+    [0.85, 1.0,  1.22, 1.85, 1.0,  1.0]
   );
 
   // Interactive mouse tilt (subtle parallax)

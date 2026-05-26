@@ -33,38 +33,40 @@ export default function CinematicScrollEngine() {
   });
 
   // Smooth out scroll value using a spring to avoid mechanical stiffness
+  // Higher stiffness & damping = snappier, less lag, no overshoot on release
   const smoothScrollProgress = useSpring(scrollYProgress, {
-    stiffness: 45,
-    damping: 15,
-    mass: 0.8,
+    stiffness: 80,
+    damping: 25,
+    mass: 0.5,
   });
 
   // 1. Virtual Camera Transformations
-  // Camera zoom: scale zooms through the core in Scene 4, then settles
+  // Stages map to: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
+  // Camera zoom: zooms THROUGH the core during Stage 4 (0.60-0.76), then settles in Stage 5
   const cameraScale = useTransform(
     smoothScrollProgress,
-    [0, 0.4, 0.58, 0.72, 0.82, 0.9, 1],
-    [1, 1.05, 1.25, 4.0, 0.9, 0.95, 0.95]
+    [0,   0.4,  0.60, 0.72, 0.82, 0.9,  1  ],
+    [1,   1.04, 1.22, 4.5,  0.92, 0.96, 0.96]
   );
 
-  // Camera offset panning (subtle X/Y shift during traversal)
+  // Camera offset panning — gentle drift through each stage
   const cameraX = useTransform(
     smoothScrollProgress,
-    [0, 0.2, 0.4, 0.58, 0.72, 0.85, 1],
-    [0, -20, 30, -50, 0, 0, 0]
-  );
-  
-  const cameraY = useTransform(
-    smoothScrollProgress,
-    [0, 0.2, 0.4, 0.58, 0.72, 0.85, 1],
-    [0, 15, -15, 30, 0, 0, 0]
+    [0,   0.2,  0.4,  0.60, 0.74, 0.88, 1  ],
+    [0,   -18,  26,  -45,   0,    0,    0  ]
   );
 
-  // Camera blur representing focus shifts between scenes
+  const cameraY = useTransform(
+    smoothScrollProgress,
+    [0,   0.2,  0.4,  0.60, 0.74, 0.88, 1  ],
+    [0,   12,  -12,   26,   0,    0,    0  ]
+  );
+
+  // Camera blur — only during the warp-through moment in Stage 4
   const cameraBlur = useTransform(
     smoothScrollProgress,
-    [0, 0.58, 0.68, 0.76, 0.84, 1],
-    [0, 0, 3, 6, 0, 0]
+    [0,   0.60, 0.67, 0.74, 0.82, 1  ],
+    [0,   0,    4,    8,    0,    0  ]
   );
 
   // Mouse tilt offsets (combined for 3D parallax)
@@ -79,58 +81,66 @@ export default function CinematicScrollEngine() {
   const cameraFilter = useMotionTemplate`blur(${cameraBlur}px)`;
 
   // 2. Stage Narrative Text Opacity mappings (Cross-fades)
-  const textOpacity1 = useTransform(smoothScrollProgress, [0, 0.12, 0.18], [1, 1, 0]);
-  const textOpacity2 = useTransform(smoothScrollProgress, [0.12, 0.2, 0.32, 0.38], [0, 1, 1, 0]);
-  const textOpacity3 = useTransform(smoothScrollProgress, [0.32, 0.4, 0.52, 0.58], [0, 1, 1, 0]);
-  const textOpacity4 = useTransform(smoothScrollProgress, [0.52, 0.6, 0.72, 0.78], [0, 1, 1, 0]);
-  const textOpacity5 = useTransform(smoothScrollProgress, [0.72, 0.82, 0.9], [0, 1, 1]);
+  // Each stage gets a generous window: fade-in over ~4%, hold for ~12%, fade-out over ~4%
+  // S1: 0.00 – 0.20  |  S2: 0.20 – 0.40  |  S3: 0.40 – 0.60  |  S4: 0.60 – 0.80  |  S5: 0.80 – 1.0
+  const textOpacity1 = useTransform(smoothScrollProgress, [0,    0.14, 0.21], [1, 1, 0]);
+  const textOpacity2 = useTransform(smoothScrollProgress, [0.14, 0.22, 0.36, 0.43], [0, 1, 1, 0]);
+  const textOpacity3 = useTransform(smoothScrollProgress, [0.36, 0.44, 0.56, 0.63], [0, 1, 1, 0]);
+  const textOpacity4 = useTransform(smoothScrollProgress, [0.56, 0.64, 0.76, 0.83], [0, 1, 1, 0]);
+  const textOpacity5 = useTransform(smoothScrollProgress, [0.76, 0.84, 0.94], [0, 1, 1]);
 
   // Stage vertical shifts (subtle floating)
   const textY = useTransform(
     smoothScrollProgress,
     [0, 1],
-    [0, -100] // pushes all text slightly upwards as scroll advances
+    [0, -80] // gentle upward drift as scroll advances
   );
 
   // Panel Coordinates Transforms (3D Parallax cockpit alignment)
-  // 1. Diagnostics Panel (diag)
-  const diagX = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-390, -330, -100, -420, -420]);
-  const diagY = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-210, -210, -210, -220, -220]);
-  const diagZ = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [0, 200, 600, -100, -100]);
-  const diagOpacity = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.75, 0.9], [0.95, 0.95, 0.0, 0.0, 0.95]);
+  // Stage pacing: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
 
-  // 2. Neural Activity Panel (neural)
-  const neuralX = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-390, -330, -100, -420, -420]);
-  const neuralY = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [160, 160, 160, 110, 110]);
-  const neuralZ = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [0, 200, 600, -100, -100]);
-  const neuralOpacity = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.75, 0.9], [0.95, 0.95, 0.0, 0.0, 0.95]);
+  // 1. Diagnostics Panel — LEFT UPPER — visible in S1+S2, pulls away for S3/S4, returns in S5
+  const diagX = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [-380, -320, -80,  -420, -420]);
+  const diagY = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [-200, -200, -200, -220, -220]);
+  const diagZ = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [0,    180,  650,  -80,  -80]);
+  const diagOpacity = useTransform(smoothScrollProgress,  [0,    0.22, 0.40, 0.78, 0.88], [0.95, 0.95, 0.0, 0.0, 0.95]);
 
-  // 3. Tactical Coordinates Panel (coords)
-  const coordsX = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [300, 390, 420, 100, 420]);
-  const coordsY = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-210, -210, -210, -210, -220]);
-  const coordsZ = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-500, -100, 200, 600, -100]);
-  const coordsOpacity = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.75, 0.9], [0.0, 0.95, 0.95, 0.0, 0.95]);
+  // 2. Neural Activity Panel — LEFT LOWER — same timing as diag, different Y
+  const neuralX = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [-380, -320, -80,  -420, -420]);
+  const neuralY = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [170,  170,  170,  115,  115]);
+  const neuralZ = useTransform(smoothScrollProgress, [0, 0.22, 0.42, 0.82, 1.0], [0,    180,  650,  -80,  -80]);
+  const neuralOpacity = useTransform(smoothScrollProgress, [0,    0.22, 0.40, 0.78, 0.88], [0.95, 0.95, 0.0, 0.0, 0.95]);
 
-  // 4. Environmental Scan Panel (scan)
-  const scanX = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [300, 390, 420, 100, 420]);
-  const scanY = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [160, 160, 160, 160, 110]);
-  const scanZ = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.8, 1.0], [-500, -100, 200, 600, -100]);
-  const scanOpacity = useTransform(smoothScrollProgress, [0, 0.25, 0.45, 0.75, 0.9], [0.0, 0.95, 0.95, 0.0, 0.95]);
+  // 3. Tactical Coordinates Panel — RIGHT UPPER — fades in during S2, exits by S4, returns in S5
+  const coordsX = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [310, 400, 430,  95,   430]);
+  const coordsY = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [-200,-200,-200,-200, -220]);
+  const coordsZ = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [-480,-90,  180,  650, -80]);
+  const coordsOpacity = useTransform(smoothScrollProgress, [0, 0.18, 0.22, 0.42, 0.78, 0.88], [0.0, 0.0, 0.95, 0.95, 0.0, 0.95]);
 
-  // 5. Quantum Processing Metrics Panel (quantum)
-  const quantumX = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [-100, -200, -320, -320, -320]);
-  const quantumY = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [300, 300, 260, 260, 260]);
-  const quantumZ = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [-800, -500, -150, -50, -50]);
-  const quantumOpacity = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [0.0, 0.0, 0.95, 0.95, 0.95]);
+  // 4. Environmental Scan Panel — RIGHT LOWER — same timing as coords
+  const scanX = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [310, 400, 430,  95,   430]);
+  const scanY = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [170, 170, 170,  170,  115]);
+  const scanZ = useTransform(smoothScrollProgress, [0, 0.22, 0.44, 0.82, 1.0], [-480,-90,  180,  650, -80]);
+  const scanOpacity = useTransform(smoothScrollProgress,  [0, 0.18, 0.22, 0.42, 0.78, 0.88], [0.0, 0.0, 0.95, 0.95, 0.0, 0.95]);
 
-  // 6. Voice Frequency Visualizer Panel (voice)
-  const voiceX = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [100, 200, 320, 320, 320]);
-  const voiceY = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [300, 300, 260, 260, 260]);
-  const voiceZ = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [-800, -500, -150, -50, -50]);
-  const voiceOpacity = useTransform(smoothScrollProgress, [0, 0.5, 0.7, 0.8, 1.0], [0.0, 0.0, 0.95, 0.95, 0.95]);
-  const panelOpacity = useTransform(smoothScrollProgress, [0.82, 0.9, 1], [0, 1, 1]);
-  const panelScale = useTransform(smoothScrollProgress, [0.82, 0.9, 1], [0.95, 1, 1]);
-  const helperOpacity = useTransform(smoothScrollProgress, [0, 0.15], [1, 0]);
+  // 5. Quantum Metrics Panel — BOTTOM LEFT — emerges in S3, stays through S5
+  const quantumX = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [-90, -190, -310, -310, -310]);
+  const quantumY = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [290, 290,  255,  255,  255]);
+  const quantumZ = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [-800,-480, -130, -40,  -40]);
+  const quantumOpacity = useTransform(smoothScrollProgress, [0, 0.38, 0.50, 0.60, 1.0], [0.0, 0.0, 0.95, 0.95, 0.95]);
+
+  // 6. Voice Frequency Visualizer — BOTTOM RIGHT — emerges in S3, stays through S5
+  const voiceX = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [90,  190,  310,  310,  310]);
+  const voiceY = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [290, 290,  255,  255,  255]);
+  const voiceZ = useTransform(smoothScrollProgress, [0, 0.42, 0.60, 0.82, 1.0], [-800,-480, -130, -40,  -40]);
+  const voiceOpacity = useTransform(smoothScrollProgress, [0, 0.38, 0.50, 0.60, 1.0], [0.0, 0.0, 0.95, 0.95, 0.95]);
+
+  // Scene 5 interactive panel (bottom-right action panel)
+  const panelOpacity = useTransform(smoothScrollProgress, [0.80, 0.88, 1], [0, 1, 1]);
+  const panelScale   = useTransform(smoothScrollProgress, [0.80, 0.88, 1], [0.94, 1, 1]);
+
+  // Scroll helper hint fades out as soon as user starts scrolling
+  const helperOpacity = useTransform(smoothScrollProgress, [0, 0.10], [1, 0]);
 
   // Wakeup cinematic sequence
   useEffect(() => {
@@ -183,7 +193,7 @@ export default function CinematicScrollEngine() {
     <div 
       ref={containerRef} 
       onMouseMove={handleMouseMove}
-      className="relative w-full h-[500vh] bg-[#02040a] overflow-x-hidden"
+      className="relative w-full h-[700vh] bg-[#02040a]"
     >
       {/* Pinned Cinematic Viewport */}
       <div 
