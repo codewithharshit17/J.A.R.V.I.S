@@ -6,6 +6,7 @@ import { Terminal, Cpu, Shield, Wifi } from "lucide-react";
 
 interface SystemHUDOverlayProps {
   scrollYProgress: MotionValue<number>;
+  onStageClick?: (stageIdx: number) => void;
 }
 
 interface LogEntry {
@@ -41,7 +42,7 @@ const TELEMETRY_LOGS: LogEntry[] = [
   { progress: 0.98, code: "CORE_LIVE", msg: "ALL SYSTEMS OPERATING AT MAXIMUM CAPACITY" },
 ];
 
-export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayProps) {
+export default function SystemHUDOverlay({ scrollYProgress, onStageClick }: SystemHUDOverlayProps) {
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
   const [currentLogs, setCurrentLogs] = useState<LogEntry[]>([]);
@@ -130,7 +131,7 @@ export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayPr
       </div>
 
       {/* 2. SIDEBAR NAVIGATION LADDER */}
-      <div className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 flex-col gap-6 font-mono text-[10px] items-end">
+      <div className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 flex-col gap-6 font-mono text-[10px] items-end pointer-events-auto z-40">
         {[
           { label: "INITIALIZATION", min: 0, max: 20 },
           { label: "CORE ACTIVATION", min: 20, max: 40 },
@@ -142,16 +143,20 @@ export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayPr
           const isPassed = syncPercent > item.max;
 
           return (
-            <div key={idx} className="flex items-center gap-3">
+            <button
+              key={idx}
+              onClick={() => onStageClick?.(idx)}
+              className="flex items-center gap-3 group cursor-pointer border-none bg-transparent outline-none focus:outline-none p-0"
+            >
               <span
-                className={`transition-all duration-300 tracking-widest ${
+                className={`transition-all duration-300 tracking-widest group-hover:text-cyan-300 group-hover:scale-105 ${
                   isActive ? "text-cyan-400 font-bold scale-105" : isPassed ? "text-cyan-700/60" : "text-gray-600"
                 }`}
               >
                 {item.label}
               </span>
               <div
-                className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center transition-all duration-300 group-hover:border-cyan-400 group-hover:scale-110 ${
                   isActive
                     ? "border-cyan-400 bg-cyan-400/30 scale-125"
                     : isPassed
@@ -166,7 +171,7 @@ export default function SystemHUDOverlay({ scrollYProgress }: SystemHUDOverlayPr
                   />
                 )}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

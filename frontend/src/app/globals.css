@@ -144,6 +144,8 @@ body {
   pointer-events: none;
   z-index: 1;
   animation: grid-drift 30s linear infinite;
+  will-change: background-position;
+  transform: translate3d(0, 0, 0);
 }
 
 .hologram-grid::after {
@@ -180,11 +182,13 @@ body {
   opacity: 0.55;
   animation: scanline-shift 0.08s steps(2) infinite;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 @keyframes scanline-shift {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 4px, 0); }
 }
 
 /* ============================================================
@@ -236,7 +240,7 @@ body {
 
 @keyframes scan-laser {
   0% {
-    transform: translateY(-10vh);
+    transform: translate3d(0, -10vh, 0);
     opacity: 0;
   }
   3% {
@@ -246,7 +250,7 @@ body {
     opacity: 1;
   }
   100% {
-    transform: translateY(110vh);
+    transform: translate3d(0, 110vh, 0);
     opacity: 0;
   }
 }
@@ -437,12 +441,13 @@ body {
   background-size: 100% 121px;
   animation: data-rain 4s linear infinite;
   will-change: transform;
+  transform: translate3d(0, -121px, 0);
   contain: layout paint;
 }
 
 @keyframes data-rain {
-  0% { transform: translateY(-121px); }
-  100% { transform: translateY(0); }
+  0% { transform: translate3d(0, -121px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 /* ============================================================
@@ -458,6 +463,8 @@ body {
   -webkit-mask-image: radial-gradient(ellipse at center, transparent 55%, black 100%);
   backdrop-filter: blur(1.5px);
   -webkit-backdrop-filter: blur(1.5px);
+  will-change: backdrop-filter;
+  transform: translate3d(0, 0, 0);
 }
 
 /* ============================================================
@@ -985,6 +992,12 @@ body {
   will-change: transform;
   contain: layout paint;
   backface-visibility: hidden;
+}
+
+.jarvis-floating-panel {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 /* ============================================================

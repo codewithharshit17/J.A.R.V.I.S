@@ -1,29 +1,13 @@
 "use client";
 
 import { motion, useTransform, MotionValue } from "framer-motion";
-import { useEffect, useState } from "react";
 
 interface TacticalGrid3DProps {
   scrollYProgress: MotionValue<number>;
+  mouseX: MotionValue<number>;
 }
 
-export default function TacticalGrid3D({ scrollYProgress }: TacticalGrid3DProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Normalize mouse coordinates from -0.5 to 0.5
-      window.requestAnimationFrame(() => {
-        setMousePosition({
-          x: (e.clientX / window.innerWidth) - 0.5,
-          y: (e.clientY / window.innerHeight) - 0.5,
-        });
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+export default function TacticalGrid3D({ scrollYProgress, mouseX }: TacticalGrid3DProps) {
 
   // Scene stage map: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
   // Grid starts far and steeply angled, approaches as scenes progress, warps in S4, settles in S5.
@@ -57,7 +41,7 @@ export default function TacticalGrid3D({ scrollYProgress }: TacticalGrid3DProps)
   );
 
   // Interactive mouse tilt (subtle parallax)
-  const mouseRotateY = mousePosition.x * 8;  // Yaw adjustment
+  const mouseRotateY = useTransform(mouseX, [-0.5, 0.5], [-4, 4]);  // Yaw adjustment
 
   return (
     <div

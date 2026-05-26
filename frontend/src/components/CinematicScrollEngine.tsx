@@ -182,6 +182,19 @@ export default function CinematicScrollEngine() {
     });
   };
 
+  const handleScrollToStage = (stageIdx: number) => {
+    // Smooth navigation coordinates for S1=0, S2=0.28, S3=0.50, S4=0.70, S5=0.90
+    const stageProgresses = [0.0, 0.28, 0.50, 0.70, 0.90];
+    const targetProgress = stageProgresses[stageIdx];
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const targetScrollY = targetProgress * scrollHeight;
+
+    window.scrollTo({
+      top: targetScrollY,
+      behavior: "smooth",
+    });
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -225,7 +238,7 @@ export default function CinematicScrollEngine() {
         
         {/* Full-Screen HUD Overlay */}
         {bootState === "ready" && !isCoreEntered && (
-          <SystemHUDOverlay scrollYProgress={smoothScrollProgress} />
+          <SystemHUDOverlay scrollYProgress={smoothScrollProgress} onStageClick={handleScrollToStage} />
         )}
 
         {/* Cinematic Camera Frame Container */}
@@ -239,7 +252,7 @@ export default function CinematicScrollEngine() {
             }}
           >
             {/* 3D Grid */}
-            <TacticalGrid3D scrollYProgress={smoothScrollProgress} />
+            <TacticalGrid3D scrollYProgress={smoothScrollProgress} mouseX={mouseX} />
 
             {/* Particles */}
             <ParticleField />
