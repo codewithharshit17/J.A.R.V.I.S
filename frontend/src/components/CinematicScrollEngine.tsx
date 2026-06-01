@@ -19,12 +19,17 @@ import VoiceVisualizer from "./holograms/VoiceVisualizer";
 import InteractionChamber from "./jarvis/InteractionChamber";
 import HolographicHud from "./jarvis/HolographicHud";
 import { JarvisState } from "./jarvis/JarvisCore";
+import { useJarvisWebSocket } from "@/hooks/useJarvisWebSocket";
+import ActivityTimeline from "./holograms/ActivityTimeline";
 
 export default function CinematicScrollEngine() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [bootState, setBootState] = useState<"dark" | "dot" | "line" | "expand" | "ready">("dark");
   const [isCoreEntered, setIsCoreEntered] = useState(false);
   const [hudState, setHudState] = useState<JarvisState>("idle");
+
+  // Initialize the J.A.R.V.I.S. WebSocket connection
+  useJarvisWebSocket();
 
   // Track scroll position of the entire runway
   const { scrollYProgress } = useScroll({
@@ -611,6 +616,11 @@ export default function CinematicScrollEngine() {
 
             {/* Holographic HUD dashboard panels */}
             <HolographicHud state={hudState} scrollProgress={0} />
+
+            {/* Realtime Activity Timeline */}
+            <div className="fixed bottom-6 left-6 z-50 w-[320px] pointer-events-auto">
+              <ActivityTimeline />
+            </div>
 
             {/* Floating Exit Button to return to scroll story */}
             <motion.button

@@ -8,6 +8,7 @@ import VoiceVisualizer from "./VoiceVisualizer";
 import AIResponseProjection from "./AIResponseProjection";
 import NeuralStream from "./NeuralStream";
 import AmbientChamberLighting from "./AmbientChamberLighting";
+import { useJarvisStore } from "@/store/useJarvisStore";
 
 export type ChamberState = "idle" | "listening" | "processing" | "speaking";
 
@@ -65,6 +66,26 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
       onStateChange(CHAMBER_TO_JARVIS[chamberState]);
     }
   }, [chamberState, onStateChange]);
+
+  // Subscribe to realtime state changes from the WebSocket / Zustand store.
+  // Maps backend states (IDLE, LISTENING, THINKING, RESPONDING, ERROR)
+  // to the ChamberState used by the orb rendering pipeline.
+  const realtimeState = useJarvisStore((s) => s.currentState);
+
+  useEffect(() => {
+    const mapping: Record<string, ChamberState> = {
+      IDLE: "idle",
+      LISTENING: "listening",
+      THINKING: "processing",
+      RESPONDING: "speaking",
+      ERROR: "idle",
+    };
+    const mapped = mapping[realtimeState];
+    if (mapped && mapped !== chamberState) {
+      setChamberState(mapped);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realtimeState]);
 
   // Delay appearance until after boot sequence completes (~4s) if not immediate
   useEffect(() => {
