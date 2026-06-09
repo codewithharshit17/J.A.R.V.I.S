@@ -70,3 +70,22 @@ async def test_state_change(body: StateChangeRequest):
         "broadcast_to": manager.active_count,
         "event": event.model_dump(),
     }
+
+
+# ---------------------------------------------------------------------------
+# Test HTTP endpoint - GET /api/test/thinking
+# ---------------------------------------------------------------------------
+@router.get("/api/test/thinking")
+async def test_thinking_state():
+    """Trigger the Phase 2A THINKING state broadcast."""
+
+    event = WebSocketEvent(
+        event=EventType.STATE_CHANGE,
+        payload={
+            "state": "THINKING",
+        },
+    )
+
+    await manager.broadcast(event.model_dump())
+
+    return {"success": True}
