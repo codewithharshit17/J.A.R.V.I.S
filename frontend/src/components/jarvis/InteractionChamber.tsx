@@ -44,6 +44,14 @@ const STATE_COLORS: Record<ChamberState, string> = {
   speaking: "#00b2ff",
 };
 
+const REALTIME_TO_CHAMBER: Record<string, ChamberState> = {
+  IDLE: "idle",
+  LISTENING: "listening",
+  THINKING: "processing",
+  RESPONDING: "speaking",
+  ERROR: "idle",
+};
+
 interface InteractionChamberProps {
   onStateChange?: (state: JarvisState) => void;
   immediate?: boolean;
@@ -67,25 +75,14 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
     }
   }, [chamberState, onStateChange]);
 
-  // Subscribe to realtime state changes from the WebSocket / Zustand store.
-  // Maps backend states (IDLE, LISTENING, THINKING, RESPONDING, ERROR)
-  // to the ChamberState used by the orb rendering pipeline.
-  const realtimeState = useJarvisStore((s) => s.currentState);
-
   useEffect(() => {
-    const mapping: Record<string, ChamberState> = {
-      IDLE: "idle",
-      LISTENING: "listening",
-      THINKING: "processing",
-      RESPONDING: "speaking",
-      ERROR: "idle",
-    };
-    const mapped = mapping[realtimeState];
-    if (mapped && mapped !== chamberState) {
-      setChamberState(mapped);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [realtimeState]);
+    return useJarvisStore.subscribe((state) => {
+      const mapped = REALTIME_TO_CHAMBER[state.currentState];
+      if (mapped) {
+        setChamberState((current) => (current === mapped ? current : mapped));
+      }
+    });
+  }, []);
 
   // Delay appearance until after boot sequence completes (~4s) if not immediate
   useEffect(() => {

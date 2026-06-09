@@ -1,13 +1,69 @@
 "use client";
 
 import { motion, useTransform, useMotionTemplate, MotionValue } from "framer-motion";
+import { useJarvisStore } from "@/store/useJarvisStore";
 
 interface AICoreOrbProps {
   scrollYProgress: MotionValue<number>;
 }
 
+const STATE_VISUALS: Record<
+  string,
+  {
+    primary: string;
+    secondary: string;
+    accent: string;
+    glow: string;
+    ringOpacity: number;
+    pulseDuration: number;
+  }
+> = {
+  IDLE: {
+    primary: "#00E5FF",
+    secondary: "#00B2FF",
+    accent: "#B6F7FF",
+    glow: "rgba(0, 229, 255, 0.85)",
+    ringOpacity: 0.4,
+    pulseDuration: 3,
+  },
+  LISTENING: {
+    primary: "#B6F7FF",
+    secondary: "#00E5FF",
+    accent: "#FFFFFF",
+    glow: "rgba(182, 247, 255, 0.9)",
+    ringOpacity: 0.55,
+    pulseDuration: 1.4,
+  },
+  THINKING: {
+    primary: "#00B2FF",
+    secondary: "#38BDF8",
+    accent: "#E0F2FE",
+    glow: "rgba(0, 178, 255, 0.95)",
+    ringOpacity: 0.7,
+    pulseDuration: 0.8,
+  },
+  RESPONDING: {
+    primary: "#22D3EE",
+    secondary: "#60A5FA",
+    accent: "#F0FDFF",
+    glow: "rgba(34, 211, 238, 0.95)",
+    ringOpacity: 0.65,
+    pulseDuration: 1,
+  },
+  ERROR: {
+    primary: "#F87171",
+    secondary: "#EF4444",
+    accent: "#FEE2E2",
+    glow: "rgba(248, 113, 113, 0.95)",
+    ringOpacity: 0.8,
+    pulseDuration: 0.5,
+  },
+};
+
 export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
   // Scene stage map: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
+  const currentState = useJarvisStore((s) => s.currentState);
+  const stateVisual = STATE_VISUALS[currentState] || STATE_VISUALS.IDLE;
 
   // Map scroll progress to scale of the orb
   // S1: 0.4 (faint/tiny), S2: 0.8 (converging), S3: 1.0 (full), S4: 5.5 (zoom-through spike), S5: 0.9 (settled)
@@ -45,7 +101,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
     [0.4, 0.7,  1.28, 1.0,  1.0]
   );
 
-  const shadowFilter = useMotionTemplate`drop-shadow(0 0 ${glowRadius}px rgba(0, 229, 255, 0.85))`;
+  const shadowFilter = useMotionTemplate`drop-shadow(0 0 ${glowRadius}px ${stateVisual.glow})`;
 
   return (
     <motion.div
@@ -66,16 +122,16 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
           <defs>
             {/* Holographic Gradients */}
             <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#B6F7FF" stopOpacity="0.95" />
-              <stop offset="35%" stopColor="#00E5FF" stopOpacity="0.42" />
-              <stop offset="68%" stopColor="#00B2FF" stopOpacity="0.16" />
+              <stop offset="0%" stopColor={stateVisual.accent} stopOpacity="0.95" />
+              <stop offset="35%" stopColor={stateVisual.primary} stopOpacity="0.42" />
+              <stop offset="68%" stopColor={stateVisual.secondary} stopOpacity="0.16" />
               <stop offset="100%" stopColor="#050816" stopOpacity="0" />
             </radialGradient>
 
             <radialGradient id="awakenedGlow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-              <stop offset="20%" stopColor="#B6F7FF" stopOpacity="0.85" />
-              <stop offset="58%" stopColor="#00B2FF" stopOpacity="0.42" />
+              <stop offset="20%" stopColor={stateVisual.accent} stopOpacity="0.85" />
+              <stop offset="58%" stopColor={stateVisual.secondary} stopOpacity="0.42" />
               <stop offset="100%" stopColor="#07111F" stopOpacity="0" />
             </radialGradient>
           </defs>
@@ -91,7 +147,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               opacity: [0.7, 0.9, 0.7],
             }}
             transition={{
-              duration: 3,
+              duration: stateVisual.pulseDuration,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -102,7 +158,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
             cx="250"
             cy="250"
             r="125"
-            stroke="rgba(0, 229, 255, 0.4)"
+            stroke={stateVisual.primary}
+            opacity={stateVisual.ringOpacity}
             strokeWidth="1.5"
             fill="transparent"
             strokeDasharray="4 8"
@@ -118,7 +175,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               cx="250"
               cy="250"
               r="160"
-              stroke="rgba(0, 229, 255, 0.35)"
+              stroke={stateVisual.primary}
+              opacity={stateVisual.ringOpacity * 0.9}
               strokeWidth="2.5"
               fill="transparent"
               strokeDasharray="20 10 5 10 40 15"
@@ -130,7 +188,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               cx="250"
               cy="250"
               r="170"
-              stroke="rgba(0, 178, 255, 0.24)"
+              stroke={stateVisual.secondary}
+              opacity={stateVisual.ringOpacity * 0.65}
               strokeWidth="4"
               fill="transparent"
               strokeDasharray="1 11"
@@ -148,7 +207,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               cx="250"
               cy="250"
               r="200"
-              stroke="rgba(0, 229, 255, 0.5)"
+              stroke={stateVisual.primary}
+              opacity={stateVisual.ringOpacity}
               strokeWidth="2"
               fill="transparent"
               strokeDasharray="80 170"
@@ -159,7 +219,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               cx="250"
               cy="250"
               r="215"
-              stroke="rgba(182, 247, 255, 0.22)"
+              stroke={stateVisual.accent}
+              opacity={stateVisual.ringOpacity * 0.45}
               strokeWidth="1"
               fill="transparent"
               strokeDasharray="10 30 50 10"
@@ -180,7 +241,8 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
                   y1="0"
                   x2={x2}
                   y2={y2}
-                  stroke="rgba(0, 229, 255, 0.12)"
+                  stroke={stateVisual.primary}
+                  opacity="0.18"
                   strokeWidth="1"
                 />
               );
@@ -195,7 +257,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
                   cx={cx}
                   cy={cy}
                   r="3.5"
-                  fill="#00e5ff"
+                  fill={stateVisual.primary}
                   animate={{
                     scale: [1, 1.4, 1],
                     opacity: [0.7, 1, 0.7],
