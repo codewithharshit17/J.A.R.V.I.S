@@ -9,8 +9,14 @@ import AIResponseProjection from "./AIResponseProjection";
 import NeuralStream from "./NeuralStream";
 import AmbientChamberLighting from "./AmbientChamberLighting";
 import { useJarvisStore } from "@/store/useJarvisStore";
+import {
+  AIChamberState,
+  getAIStateDefinition,
+  mapAIStateToChamberState,
+  mapAIStateToCoreState,
+} from "@/lib/aiState";
 
-export type ChamberState = "idle" | "listening" | "processing" | "speaking";
+export type ChamberState = AIChamberState;
 
 const CHAMBER_TO_JARVIS: Record<ChamberState, JarvisState> = {
   idle: "idle",
@@ -30,28 +36,6 @@ const JARVIS_RESPONSES = [
   "Your request has been processed through my advanced reasoning core. I have identified multiple solution vectors and selected the one with the highest efficiency rating. Transmitting now.",
 ];
 
-const STATE_LABELS: Record<ChamberState, string> = {
-  idle: "AWAITING COMMAND",
-  listening: "NEURAL RECEPTOR ACTIVE - LISTENING",
-  processing: "COGNITIVE MATRIX PROCESSING",
-  speaking: "TRANSMITTING HOLOGRAPHIC RESPONSE",
-};
-
-const STATE_COLORS: Record<ChamberState, string> = {
-  idle: "#00e5ff",
-  listening: "#b6f7ff",
-  processing: "#00e5ff",
-  speaking: "#00b2ff",
-};
-
-const REALTIME_TO_CHAMBER: Record<string, ChamberState> = {
-  IDLE: "idle",
-  LISTENING: "listening",
-  THINKING: "processing",
-  RESPONDING: "speaking",
-  ERROR: "idle",
-};
-
 interface InteractionChamberProps {
   onStateChange?: (state: JarvisState) => void;
   immediate?: boolean;
@@ -63,6 +47,8 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isVisible, setIsVisible] = useState(immediate);
   const [userInput, setUserInput] = useState("");
+  const currentAIState = useJarvisStore((s) => s.currentState);
+  const stateDefinition = getAIStateDefinition(currentAIState);
 
   const processingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,10 +63,8 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
 
   useEffect(() => {
     return useJarvisStore.subscribe((state) => {
-      const mapped = REALTIME_TO_CHAMBER[state.currentState];
-      if (mapped) {
-        setChamberState((current) => (current === mapped ? current : mapped));
-      }
+      const mapped = mapAIStateToChamberState(state.currentState);
+      setChamberState((current) => (current === mapped ? current : mapped));
     });
   }, []);
 
@@ -144,8 +128,8 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
     };
   }, []);
 
-  const jarvisState = CHAMBER_TO_JARVIS[chamberState];
-  const stateColor = STATE_COLORS[chamberState];
+  const jarvisState = mapAIStateToCoreState(currentAIState) as JarvisState;
+  const stateColor = stateDefinition.visual.primary;
 
   return (
     <AnimatePresence>
@@ -183,7 +167,7 @@ export default function InteractionChamber({ onStateChange, immediate = false }:
                   className="text-[9px] tracking-[0.45em] font-mono font-semibold"
                   style={{ color: stateColor }}
                 >
-                  {STATE_LABELS[chamberState]}
+                  {stateDefinition.statusText.toUpperCase()}
                 </span>
                 <motion.div
                   className="w-1.5 h-1.5 rounded-full"

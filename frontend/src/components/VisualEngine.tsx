@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Cpu, Shield, Wifi } from "lucide-react";
-import { JarvisState } from "./jarvis/JarvisCore";
 import HolographicHud from "./jarvis/HolographicHud";
 import InteractionChamber from "./jarvis/InteractionChamber";
 
@@ -25,7 +24,6 @@ export default function VisualEngine() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const [bootState, setBootState] = useState<BootState>("dark");
-  const [hudState, setHudState] = useState<JarvisState>("idle");
   const [activeLogs, setActiveLogs] = useState<string[]>([]);
   const [telemetryVal, setTelemetryVal] = useState({ cpu: 1.2, ram: 24, temp: 34.2, nodes: 88 });
 
@@ -385,12 +383,12 @@ export default function VisualEngine() {
 
       {/* === IMMERSIVE AI INTERACTION CHAMBER === */}
       {isReady && (
-        <InteractionChamber onStateChange={setHudState} />
+        <InteractionChamber />
       )}
 
       {/* === HOLOGRAPHIC HUD === */}
       {isReady && (
-        <HolographicHud state={hudState} scrollProgress={0} />
+        <HolographicHud scrollProgress={0} />
       )}
 
       {/* === HUD TELEMETRY OVERLAY === */}

@@ -18,15 +18,14 @@ import VoiceVisualizer from "./holograms/VoiceVisualizer";
 
 import InteractionChamber from "./jarvis/InteractionChamber";
 import HolographicHud from "./jarvis/HolographicHud";
-import { JarvisState } from "./jarvis/JarvisCore";
 import { useJarvisWebSocket } from "@/hooks/useJarvisWebSocket";
 import ActivityTimeline from "./holograms/ActivityTimeline";
+import AIStateDebugPanel from "./debug/AIStateDebugPanel";
 
 export default function CinematicScrollEngine() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [bootState, setBootState] = useState<"dark" | "dot" | "line" | "expand" | "ready">("dark");
   const [isCoreEntered, setIsCoreEntered] = useState(false);
-  const [hudState, setHudState] = useState<JarvisState>("idle");
 
   // Initialize the J.A.R.V.I.S. WebSocket connection
   useJarvisWebSocket();
@@ -612,10 +611,10 @@ export default function CinematicScrollEngine() {
         {bootState === "ready" && isCoreEntered && (
           <>
             {/* Immersive AI Interaction Chamber (takes over the screen) */}
-            <InteractionChamber onStateChange={setHudState} immediate={true} />
+            <InteractionChamber immediate={true} />
 
             {/* Holographic HUD dashboard panels */}
-            <HolographicHud state={hudState} scrollProgress={0} />
+            <HolographicHud scrollProgress={0} />
 
             {/* Realtime Activity Timeline */}
             <div className="fixed bottom-6 left-6 z-50 w-[320px] pointer-events-auto">
@@ -638,6 +637,7 @@ export default function CinematicScrollEngine() {
           </>
         )}
 
+        <AIStateDebugPanel />
       </div>
     </div>
   );

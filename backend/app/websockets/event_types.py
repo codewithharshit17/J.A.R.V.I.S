@@ -16,5 +16,21 @@ class JarvisState(str, Enum):
     IDLE = "IDLE"
     LISTENING = "LISTENING"
     THINKING = "THINKING"
+    PROCESSING = "PROCESSING"
     RESPONDING = "RESPONDING"
     ERROR = "ERROR"
+
+
+VALID_STATE_TRANSITIONS = {
+    JarvisState.IDLE: {JarvisState.LISTENING, JarvisState.ERROR},
+    JarvisState.LISTENING: {JarvisState.THINKING, JarvisState.ERROR},
+    JarvisState.THINKING: {JarvisState.PROCESSING, JarvisState.ERROR},
+    JarvisState.PROCESSING: {JarvisState.RESPONDING, JarvisState.ERROR},
+    JarvisState.RESPONDING: {JarvisState.IDLE, JarvisState.ERROR},
+    JarvisState.ERROR: {JarvisState.ERROR},
+}
+
+
+def can_transition(from_state: JarvisState, to_state: JarvisState) -> bool:
+    """Return whether a state transition is allowed by the Phase 2B model."""
+    return from_state == to_state or to_state in VALID_STATE_TRANSITIONS[from_state]

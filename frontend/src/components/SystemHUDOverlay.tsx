@@ -3,6 +3,8 @@
 import { motion, MotionValue } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Terminal, Cpu, Shield, Wifi } from "lucide-react";
+import { useJarvisStore } from "@/store/useJarvisStore";
+import { getAIStateDefinition } from "@/lib/aiState";
 
 interface SystemHUDOverlayProps {
   scrollYProgress: MotionValue<number>;
@@ -45,6 +47,8 @@ const TELEMETRY_LOGS: LogEntry[] = [
 export default function SystemHUDOverlay({ scrollYProgress, onStageClick }: SystemHUDOverlayProps) {
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
+  const currentState = useJarvisStore((s) => s.currentState);
+  const stateDefinition = getAIStateDefinition(currentState);
   const [currentLogs, setCurrentLogs] = useState<LogEntry[]>([]);
   const [depth, setDepth] = useState(0);
   const [syncPercent, setSyncPercent] = useState(0);
@@ -106,6 +110,19 @@ export default function SystemHUDOverlay({ scrollYProgress, onStageClick }: Syst
               <h3 className="text-xs font-bold font-mono mt-0.5 tracking-wider">{phase.title}</h3>
             </div>
           </div>
+
+          <div
+            className="bg-[#02040a]/60 backdrop-blur-[16px] border px-4 py-3 rounded-sm flex items-center gap-3 transition-colors duration-500"
+            style={{ borderColor: `${stateDefinition.visual.primary}55`, color: stateDefinition.visual.primary }}
+          >
+            <Wifi className="w-5 h-5" />
+            <div>
+              <p className="text-[10px] text-gray-500 font-mono leading-none">AI STATE</p>
+              <h3 className="text-xs font-bold font-mono mt-0.5 tracking-wider">
+                {stateDefinition.statusText.toUpperCase()}
+              </h3>
+            </div>
+          </div>
         </div>
 
         {/* Right Stats */}
@@ -126,7 +143,7 @@ export default function SystemHUDOverlay({ scrollYProgress, onStageClick }: Syst
           {phase.title}
         </div>
         <div className="border border-cyan-500/20 bg-[#02040a]/55 backdrop-blur-[14px] rounded-sm px-3 py-2 text-right">
-          SYNC {syncPercent}%
+          {currentState}{" // "}SYNC {syncPercent}%
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useJarvisStore } from "@/store/useJarvisStore";
+import { normalizeAIState } from "@/lib/aiState";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
 const RECONNECT_INTERVAL_MS = 3000;
@@ -82,10 +83,11 @@ class WebSocketManager {
     if (!data.event) return;
 
     const store = useJarvisStore.getState();
+    const timestamp = new Date().toISOString();
 
     // Push every event into the timeline
     store.pushEvent({
-      timestamp: (data.payload?.timestamp as string) || new Date().toISOString(),
+      timestamp: (data.payload?.timestamp as string) || timestamp,
       event: data.event,
       payload: data.payload || {},
     });
@@ -94,17 +96,26 @@ class WebSocketManager {
     switch (data.event) {
       case "STATE_CHANGE":
         if (data.payload?.state) {
-          store.setCurrentState(data.payload.state as string);
-          console.log("[JARVIS WS] State →", data.payload.state);
+          const nextState = normalizeAIState(data.payload.state);
+          if (!nextState) {
+            console.warn(`[JARVIS WS] ${timestamp} Ignoring unknown AI state:`, data.payload.state);
+            break;
+          }
+
+          const currentState = store.currentState;
+          store.setCurrentState(nextState);
+          console.log(
+            `[JARVIS WS] ${timestamp} STATE_CHANGE: ${currentState} -> ${nextState}`
+          );
         }
         break;
 
       case "CONNECTION_ACK":
-        console.log("[JARVIS WS] Server ACK:", data.payload?.message);
+        console.log(`[JARVIS WS] ${timestamp} CONNECTION_ACK:`, data.payload?.message);
         break;
 
       default:
-        console.log("[JARVIS WS] Unhandled event:", data.event);
+        console.log(`[JARVIS WS] ${timestamp} Event:`, data.event, data.payload);
     }
   }
 

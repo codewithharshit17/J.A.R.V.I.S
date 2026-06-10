@@ -2,68 +2,16 @@
 
 import { motion, useTransform, useMotionTemplate, MotionValue } from "framer-motion";
 import { useJarvisStore } from "@/store/useJarvisStore";
+import { getAIStateDefinition } from "@/lib/aiState";
 
 interface AICoreOrbProps {
   scrollYProgress: MotionValue<number>;
 }
 
-const STATE_VISUALS: Record<
-  string,
-  {
-    primary: string;
-    secondary: string;
-    accent: string;
-    glow: string;
-    ringOpacity: number;
-    pulseDuration: number;
-  }
-> = {
-  IDLE: {
-    primary: "#00E5FF",
-    secondary: "#00B2FF",
-    accent: "#B6F7FF",
-    glow: "rgba(0, 229, 255, 0.85)",
-    ringOpacity: 0.4,
-    pulseDuration: 3,
-  },
-  LISTENING: {
-    primary: "#B6F7FF",
-    secondary: "#00E5FF",
-    accent: "#FFFFFF",
-    glow: "rgba(182, 247, 255, 0.9)",
-    ringOpacity: 0.55,
-    pulseDuration: 1.4,
-  },
-  THINKING: {
-    primary: "#00B2FF",
-    secondary: "#38BDF8",
-    accent: "#E0F2FE",
-    glow: "rgba(0, 178, 255, 0.95)",
-    ringOpacity: 0.7,
-    pulseDuration: 0.8,
-  },
-  RESPONDING: {
-    primary: "#22D3EE",
-    secondary: "#60A5FA",
-    accent: "#F0FDFF",
-    glow: "rgba(34, 211, 238, 0.95)",
-    ringOpacity: 0.65,
-    pulseDuration: 1,
-  },
-  ERROR: {
-    primary: "#F87171",
-    secondary: "#EF4444",
-    accent: "#FEE2E2",
-    glow: "rgba(248, 113, 113, 0.95)",
-    ringOpacity: 0.8,
-    pulseDuration: 0.5,
-  },
-};
-
 export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
   // Scene stage map: S1=0-0.2, S2=0.2-0.4, S3=0.4-0.6, S4=0.6-0.8, S5=0.8-1.0
   const currentState = useJarvisStore((s) => s.currentState);
-  const stateVisual = STATE_VISUALS[currentState] || STATE_VISUALS.IDLE;
+  const stateVisual = getAIStateDefinition(currentState).visual;
 
   // Map scroll progress to scale of the orb
   // S1: 0.4 (faint/tiny), S2: 0.8 (converging), S3: 1.0 (full), S4: 5.5 (zoom-through spike), S5: 0.9 (settled)
@@ -164,7 +112,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
             fill="transparent"
             strokeDasharray="4 8"
             animate={{ rotate: 360 }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 18 / stateVisual.rotationMultiplier, repeat: Infinity, ease: "linear" }}
           />
 
           {/* TACTICAL COMPASS RING (Middle Layer) */}
@@ -181,7 +129,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               fill="transparent"
               strokeDasharray="20 10 5 10 40 15"
               animate={{ rotate: -360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 25 / stateVisual.rotationMultiplier, repeat: Infinity, ease: "linear" }}
             />
             {/* Degree ticks */}
             <motion.circle
@@ -194,7 +142,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               fill="transparent"
               strokeDasharray="1 11"
               animate={{ rotate: 180 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 40 / stateVisual.rotationMultiplier, repeat: Infinity, ease: "linear" }}
             />
           </motion.g>
 
@@ -213,7 +161,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               fill="transparent"
               strokeDasharray="80 170"
               animate={{ rotate: 360 }}
-              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 12 / stateVisual.rotationMultiplier, repeat: Infinity, ease: "linear" }}
             />
             <motion.circle
               cx="250"
@@ -225,7 +173,7 @@ export default function AICoreOrb({ scrollYProgress }: AICoreOrbProps) {
               fill="transparent"
               strokeDasharray="10 30 50 10"
               animate={{ rotate: -180 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 15 / stateVisual.rotationMultiplier, repeat: Infinity, ease: "linear" }}
             />
           </motion.g>
 

@@ -35,22 +35,22 @@ export const STATE_CONFIGS: Record<JarvisState, StateConfig> = {
     glowIntensity: "0 0 50px rgba(0,229,255,0.5), inset 0 0 40px rgba(0,229,255,0.4)"
   },
   listening: {
-    color: "#b6f7ff", rgb: "182, 247, 255", pulseDuration: 1.2,
+    color: "#22d3ee", rgb: "34, 211, 238", pulseDuration: 1.2,
     ringSpeedClockwise: 25, ringSpeedCounter: -30, particleCount: 90,
     particleSpeed: 1.6, particleStyle: "pulse", scale: 1.08,
-    glowIntensity: "0 0 60px rgba(182,247,255,0.6), inset 0 0 45px rgba(182,247,255,0.5)"
+    glowIntensity: "0 0 60px rgba(34,211,238,0.6), inset 0 0 45px rgba(34,211,238,0.5)"
   },
   processing: {
-    color: "#00b2ff", rgb: "0, 178, 255", pulseDuration: 0.7,
+    color: "#3b82f6", rgb: "59, 130, 246", pulseDuration: 0.7,
     ringSpeedClockwise: 10, ringSpeedCounter: -12, particleCount: 140,
     particleSpeed: 3.8, particleStyle: "converge", scale: 1.02,
-    glowIntensity: "0 0 70px rgba(0,178,255,0.7), inset 0 0 50px rgba(0,178,255,0.6)"
+    glowIntensity: "0 0 70px rgba(59,130,246,0.7), inset 0 0 50px rgba(59,130,246,0.6)"
   },
   speaking: {
-    color: "#00e5ff", rgb: "0, 229, 255", pulseDuration: 1.0,
+    color: "#22c55e", rgb: "34, 197, 94", pulseDuration: 1.0,
     ringSpeedClockwise: 30, ringSpeedCounter: -38, particleCount: 100,
     particleSpeed: 2.5, particleStyle: "pulse", scale: 1.15,
-    glowIntensity: "0 0 65px rgba(0,229,255,0.65), inset 0 0 45px rgba(0,229,255,0.55)"
+    glowIntensity: "0 0 65px rgba(34,197,94,0.65), inset 0 0 45px rgba(34,197,94,0.55)"
   },
   analyzing: {
     color: "#00b2ff", rgb: "0, 178, 255", pulseDuration: 2.5,
@@ -65,10 +65,10 @@ export const STATE_CONFIGS: Record<JarvisState, StateConfig> = {
     glowIntensity: "0 0 55px rgba(182,247,255,0.55), inset 0 0 35px rgba(182,247,255,0.45)"
   },
   executing: {
-    color: "#00e5ff", rgb: "0, 229, 255", pulseDuration: 0.4,
+    color: "#a855f7", rgb: "168, 85, 247", pulseDuration: 0.4,
     ringSpeedClockwise: 5, ringSpeedCounter: -7, particleCount: 160,
     particleSpeed: 4.8, particleStyle: "converge", scale: 1.05,
-    glowIntensity: "0 0 75px rgba(0,229,255,0.8), inset 0 0 55px rgba(0,229,255,0.7)"
+    glowIntensity: "0 0 75px rgba(168,85,247,0.8), inset 0 0 55px rgba(168,85,247,0.7)"
   },
   disconnected: {
     color: "#002244", rgb: "0, 34, 68", pulseDuration: 5.0,
@@ -77,10 +77,10 @@ export const STATE_CONFIGS: Record<JarvisState, StateConfig> = {
     glowIntensity: "0 0 20px rgba(0,34,68,0.2), inset 0 0 15px rgba(0,34,68,0.15)"
   },
   error: {
-    color: "#b6f7ff", rgb: "182, 247, 255", pulseDuration: 0.5,
+    color: "#ef4444", rgb: "239, 68, 68", pulseDuration: 0.5,
     ringSpeedClockwise: 4, ringSpeedCounter: -5, particleCount: 150,
     particleSpeed: 4.2, particleStyle: "chaotic", scale: 1.18,
-    glowIntensity: "0 0 80px rgba(182,247,255,0.85), inset 0 0 55px rgba(182,247,255,0.75)"
+    glowIntensity: "0 0 80px rgba(239,68,68,0.85), inset 0 0 55px rgba(239,68,68,0.75)"
   }
 };
 

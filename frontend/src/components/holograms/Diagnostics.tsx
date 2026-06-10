@@ -4,8 +4,12 @@ import React, { useEffect, useState } from "react";
 import HolographicPanel from "./HolographicPanel";
 import { motion } from "framer-motion";
 import { DURATION } from "@/lib/motionConstants";
+import { getAIStateDefinition } from "@/lib/aiState";
+import { useJarvisStore } from "@/store/useJarvisStore";
 
 export default function Diagnostics() {
+  const currentState = useJarvisStore((s) => s.currentState);
+  const stateDefinition = getAIStateDefinition(currentState);
   const [telemetry, setTelemetry] = useState({
     cpu1: 45,
     cpu2: 32,
@@ -33,12 +37,24 @@ export default function Diagnostics() {
   return (
     <HolographicPanel 
       title="A.I. SYSTEM DIAGNOSTICS" 
-      subtitle="CORE_SYSTEM_METRICS // CORE.V8"
+      subtitle={`AI_STATE // ${stateDefinition.label.toUpperCase()}`}
       glassPreset="standard"
       animateGlow={true}
       interactive={true}
     >
       <div className="flex flex-col space-y-3.5">
+        <div
+          className="flex items-center justify-between border px-2 py-1.5 rounded-sm font-share-mono text-[8px] tracking-widest"
+          style={{
+            borderColor: `${stateDefinition.visual.primary}33`,
+            color: stateDefinition.visual.primary,
+            backgroundColor: `rgba(${stateDefinition.visual.rgb}, 0.08)`,
+          }}
+        >
+          <span>CURRENT_AI_STATE</span>
+          <span>{stateDefinition.statusText.toUpperCase()}</span>
+        </div>
+
         {/* Core Stats Progress Bars */}
         <div className="space-y-2">
           {/* CPU 1 */}

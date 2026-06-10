@@ -3,14 +3,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { JarvisState, STATE_CONFIGS } from "./JarvisCore";
+import { useJarvisStore } from "@/store/useJarvisStore";
+import { getAIStateDefinition, mapAIStateToCoreState } from "@/lib/aiState";
 
 interface HolographicHudProps {
-  state: JarvisState;
   scrollProgress: number;
 }
 
-export default function HolographicHud({ state, scrollProgress }: HolographicHudProps) {
-  const config = STATE_CONFIGS[state];
+export default function HolographicHud({ scrollProgress }: HolographicHudProps) {
+  const currentState = useJarvisStore((s) => s.currentState);
+  const stateDefinition = getAIStateDefinition(currentState);
+  const visualState = mapAIStateToCoreState(currentState) as JarvisState;
+  const config = STATE_CONFIGS[visualState];
   const audioCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const mouseX = useMotionValue(0);
@@ -49,21 +53,21 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
         ).padStart(2, "0")}.${String(now.getMilliseconds()).slice(0, 2)}`
       );
 
-      if (state === "executing" || state === "processing") {
+      if (visualState === "executing" || visualState === "processing") {
         setCoreTemp(p => Math.min(68.5, p + (Math.random() - 0.3) * 0.8));
         setSyncRate(p => Math.min(100, Math.max(99.0, p + (Math.random() - 0.5) * 0.05)));
         setLoad([
           Math.floor(Math.random() * 20 + 75), Math.floor(Math.random() * 20 + 70),
           Math.floor(Math.random() * 25 + 65), Math.floor(Math.random() * 15 + 80)
         ]);
-      } else if (state === "error" || state === "warning") {
+      } else if (visualState === "error" || visualState === "warning") {
         setCoreTemp(p => Math.min(84.0, p + (Math.random() - 0.4) * 1.5));
         setSyncRate(p => Math.max(62.4, p - (Math.random() - 0.1) * 0.8));
         setLoad([
           Math.floor(Math.random() * 30 + 60), Math.floor(Math.random() * 30 + 55),
           Math.floor(Math.random() * 20 + 70), Math.floor(Math.random() * 40 + 50)
         ]);
-      } else if (state === "disconnected") {
+      } else if (visualState === "disconnected") {
         setCoreTemp(p => Math.max(22.0, p - 0.2));
         setSyncRate(0.0);
         setLoad([0, 0, 0, 0]);
@@ -77,7 +81,7 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
       }
     }, 300);
     return () => clearInterval(timer);
-  }, [state]);
+  }, [visualState]);
 
   // Rolling logs
   useEffect(() => {
@@ -94,11 +98,11 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
       error: ["HALT // CRITICAL EXCEPTION", "OVERFLOW // MEMORY DUMP STACK TRACE", "HARDWARE // SYNC COLLAPSE 0xF3C2"]
     };
     const interval = setInterval(() => {
-      const msgs = messages[state];
+      const msgs = messages[visualState];
       setLogs(prev => [msgs[Math.floor(Math.random() * msgs.length)], prev[0], prev[1]].slice(0, 3));
     }, 1500);
     return () => clearInterval(interval);
-  }, [state]);
+  }, [visualState]);
 
   // Soundwave canvas with bezier smoothing & glow
   useEffect(() => {
@@ -116,16 +120,16 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
 
     const render = () => {
       ctx.clearRect(0, 0, dw, dh);
-      const c = STATE_CONFIGS[state];
+      const c = STATE_CONFIGS[visualState];
       let waves = 3, amp = 15, freq = 0.05, speed = 0.12;
 
-      if (state === "speaking") { waves = 4; amp = 28 + Math.sin(phase * 4) * 8; freq = 0.04; speed = 0.18; }
-      else if (state === "listening") { waves = 2; amp = 4 + Math.sin(phase) * 2; freq = 0.08; speed = 0.06; }
-      else if (state === "processing") { waves = 5; amp = 20 + Math.random() * 8; freq = 0.14; speed = 0.25; }
-      else if (state === "executing") { waves = 4; amp = 32; freq = 0.08; speed = 0.32; }
-      else if (state === "error") { waves = 6; amp = 35 * (Math.random() > 0.85 ? 0.2 : 1); freq = 0.22; speed = 0.4; }
-      else if (state === "disconnected") { waves = 1; amp = 0.5 + Math.random() * 1.5; freq = 0.4; speed = 0.02; }
-      else if (state === "analyzing") { waves = 3; amp = 12; freq = 0.06; speed = 0.08; }
+      if (visualState === "speaking") { waves = 4; amp = 28 + Math.sin(phase * 4) * 8; freq = 0.04; speed = 0.18; }
+      else if (visualState === "listening") { waves = 2; amp = 4 + Math.sin(phase) * 2; freq = 0.08; speed = 0.06; }
+      else if (visualState === "processing") { waves = 5; amp = 20 + Math.random() * 8; freq = 0.14; speed = 0.25; }
+      else if (visualState === "executing") { waves = 4; amp = 32; freq = 0.08; speed = 0.32; }
+      else if (visualState === "error") { waves = 6; amp = 35 * (Math.random() > 0.85 ? 0.2 : 1); freq = 0.22; speed = 0.4; }
+      else if (visualState === "disconnected") { waves = 1; amp = 0.5 + Math.random() * 1.5; freq = 0.4; speed = 0.02; }
+      else if (visualState === "analyzing") { waves = 3; amp = 12; freq = 0.06; speed = 0.08; }
       else { waves = 3; amp = 8; freq = 0.03; speed = 0.05; }
 
       phase += speed;
@@ -149,7 +153,7 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
         for (let x = 0; x < dw; x += 2) {
           const edgeFade = Math.sin((x / dw) * Math.PI);
           let y = dh / 2;
-          if (state === "error") {
+          if (visualState === "error") {
             const noise = Math.random() > 0.98 ? (Math.random() - 0.5) * 18 : 0;
             y += Math.sin(x * wFreq + phase + wShift) * amp * edgeFade + noise;
           } else {
@@ -199,7 +203,7 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
     };
     window.addEventListener("resize", handleResize);
     return () => { cancelAnimationFrame(animFrame); window.removeEventListener("resize", handleResize); };
-  }, [state]);
+  }, [visualState]);
 
   const scrollHudScale = 1 - scrollProgress * 0.04;
 
@@ -239,7 +243,8 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
           </div>
           <div className="font-share-mono text-[11px] space-y-0.5" style={{ color: config.color }}>
             {[
-              ["SYSTEM STATE", state.toUpperCase()],
+              ["AI STATUS", stateDefinition.statusText],
+              ["SYSTEM STATE", currentState],
               ["CORE TEMP", `${coreTemp.toFixed(1)} C`],
               ["SYNC SPEED", `${(syncRate * 8.4).toFixed(1)} T/S`],
               ["LINK SYNC", `${syncRate.toFixed(2)}%`],
@@ -316,6 +321,33 @@ export default function HolographicHud({ state, scrollProgress }: HolographicHud
           <span className="text-[6px] -rotate-90" style={{ color: config.color }}>^</span>
         </div>
       </div>
+
+      {/* ---- TOP CENTER STATUS DISPLAY ---- */}
+      <motion.div
+        className="absolute top-0 left-1/2 -translate-x-1/2 z-40 pointer-events-none mt-6"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <div className="glass-panel flex flex-col items-center space-y-0.5 px-6 py-2.5 border-b-2 backdrop-blur-xl"
+          style={{ 
+            borderColor: `rgba(${config.rgb}, 0.3)`,
+            backgroundColor: `rgba(2, 4, 10, 0.65)`
+          }}>
+          <div className="text-[18px] md:text-[20px] font-bold font-orbitron tracking-widest" style={{ color: config.color }}>
+            {stateDefinition.label.toUpperCase()}
+          </div>
+          <div className="text-[10px] md:text-[11px] font-share-mono tracking-wide" style={{ color: `rgba(${config.rgb}, 0.65)` }}>
+            {stateDefinition.statusText.toUpperCase()}
+          </div>
+          <motion.div
+            className="h-0.5 rounded-full mt-1"
+            style={{ width: "70px", backgroundColor: config.color }}
+            animate={{ scaleX: [0.6, 1, 0.6] }}
+            transition={{ duration: stateDefinition.visual.pulseDuration, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+      </motion.div>
 
       {/* ---- BOTTOM ROW ---- */}
       <div className="flex justify-between items-end w-full relative z-20">
