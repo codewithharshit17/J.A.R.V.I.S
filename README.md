@@ -198,6 +198,14 @@ uvicorn app.main:app --reload
 
 ---
 
+## 🏗️ System Architecture
+
+### Interactive Architecture Diagram
+
+🔗 https://codewithharshit17.github.io/J.A.R.V.I.S/architecture/
+
+Explore the complete frontend, backend, agent, memory, and orchestration architecture of J.A.R.V.I.S.
+
 ## Engineering Focus
 
 This project is being developed as a long-term engineering system focused on:
