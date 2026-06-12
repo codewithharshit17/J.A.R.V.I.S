@@ -25,11 +25,33 @@ export default function AIStateDebugPanel() {
   const triggerState = async (state: AIState) => {
     setPendingState(state);
     try {
-      await fetch(`${API_BASE_URL}${getAIStateTestEndpoint(state)}`, {
+      const endpoint = getAIStateTestEndpoint(state);
+      const url = `${API_BASE_URL}${endpoint}`;
+      
+      console.log(`[JARVIS DEBUG] Triggering state: ${state}`, { url });
+      
+      const response = await fetch(url, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`[JARVIS DEBUG] State change response:`, data);
     } catch (error) {
-      console.error("[JARVIS DEBUG] Failed to trigger AI state:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("[JARVIS DEBUG] Failed to trigger AI state:", {
+        state,
+        error: errorMessage,
+        apiUrl: API_BASE_URL,
+        endpoint: getAIStateTestEndpoint(state),
+        details: error,
+      });
     } finally {
       setPendingState(null);
     }

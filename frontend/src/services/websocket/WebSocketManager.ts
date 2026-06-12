@@ -45,7 +45,12 @@ class WebSocketManager {
       };
 
       this.ws.onclose = () => {
-        console.log("[JARVIS WS] Connection closed");
+        const reason = this.ws?.code === 1000 ? "Normal closure" : `Code ${this.ws?.code || "unknown"}`;
+        console.log("[JARVIS WS] Connection closed:", {
+          reason,
+          code: this.ws?.code,
+          timestamp: new Date().toISOString(),
+        });
         useJarvisStore.getState().setConnected(false);
         this.ws = null;
 
@@ -55,7 +60,15 @@ class WebSocketManager {
       };
 
       this.ws.onerror = (err) => {
-        console.error("[JARVIS WS] Error:", err);
+        const errorDetail = err instanceof Event 
+          ? `WebSocket error event (${this.ws?.readyState})`
+          : String(err);
+        console.error("[JARVIS WS] Error:", {
+          message: errorDetail,
+          readyState: this.ws?.readyState,
+          url: WS_URL,
+          timestamp: new Date().toISOString(),
+        });
         // onclose will fire next and handle reconnect
       };
     } catch (err) {
@@ -134,6 +147,15 @@ class WebSocketManager {
     this.reconnectTimer = setTimeout(() => {
       this.connect();
     }, RECONNECT_INTERVAL_MS);
+  }
+
+  /** Get current connection status information. */
+  getStatus(): { connected: boolean; url: string; readyState?: number } {
+    return {
+      connected: this.ws?.readyState === WebSocket.OPEN,
+      url: WS_URL,
+      readyState: this.ws?.readyState,
+    };
   }
 }
 

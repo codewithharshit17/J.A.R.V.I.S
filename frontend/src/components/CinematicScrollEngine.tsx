@@ -637,7 +637,18 @@ export default function CinematicScrollEngine() {
           </>
         )}
 
-        <AIStateDebugPanel />
+        {bootState === "ready" && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="fixed inset-0 pointer-events-none z-[70]"
+          >
+            <div className="pointer-events-auto">
+              <AIStateDebugPanel />
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
